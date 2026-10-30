@@ -1,6 +1,14 @@
 import * as attendanceApi from '../api/attendance';
 import { bootstrapPage } from '../layout/shell';
-import { ALLOWED_ACTIONS, EVENT_LABELS, STATE_LABELS, isLate, isOpen, isStale, summarize } from '../lib/attendance';
+import {
+  ALLOWED_ACTIONS,
+  EVENT_LABELS,
+  STATE_LABELS,
+  isLate,
+  isOpen,
+  isStale,
+  summarize,
+} from '../lib/attendance';
 import { badge, byId, emptyRow, safely, startPage, toast } from '../lib/dom';
 import { formatClock, formatDate, formatTime, todayIn } from '../lib/time';
 import type { AttendanceEvent, EventType, OfficeDetails, Tone } from '../types/models';
@@ -24,6 +32,7 @@ startPage(async () => {
   const tz = office.timezone;
   const buttons = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-event]'));
   const ui = {
+    card: byId('statusCard'),
     status: byId('status'),
     checkIn: byId('checkIn'),
     work: byId('workDur'),
@@ -37,6 +46,7 @@ startPage(async () => {
     const summary = summarize(events);
     ui.status.textContent = STATE_LABELS[summary.state];
     ui.status.className = `value s-${summary.state}`;
+    ui.card.dataset.state = summary.state;
     ui.checkIn.textContent = formatTime(summary.firstIn, tz);
     ui.work.textContent = formatClock(summary.workMs);
     ui.breaks.textContent = formatClock(summary.breakMs);
@@ -53,8 +63,14 @@ startPage(async () => {
           .join('')
       : emptyRow(3, 'No activity recorded today.');
 
-    const allowed = ALLOWED_ACTIONS[summarize(events).state];
-    buttons.forEach((button) => (button.disabled = !allowed.includes(button.dataset.event as EventType)));
+    const state = summarize(events).state;
+    const allowed = ALLOWED_ACTIONS[state];
+    buttons.forEach((button) => {
+      const action = button.dataset.event as EventType;
+      button.disabled = !allowed.includes(action);
+      button.hidden =
+        action === 'break_end' ? state !== 'break' : action === 'break_start' && state === 'break';
+    });
   }
 
   async function load(): Promise<void> {

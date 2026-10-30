@@ -12,33 +12,69 @@
       <div class="main">
         <header class="topbar">
           <h1>Dashboard</h1>
-          <div class="user"><span class="avatar" id="avatar">U</span><span id="userName">Loading...</span></div>
+          <div class="user">
+            <span class="avatar" id="avatar">U</span><span id="userName">Loading...</span>
+          </div>
         </header>
-        <main class="content">
-          <section class="stats">
-            <div class="stat"><div class="label">Current Status</div><div class="value s-out" id="status">Checked Out</div></div>
-            <div class="stat"><div class="label">Check-In Time</div><div class="value num" id="checkIn">--:--</div></div>
-            <div class="stat"><div class="label">Work Duration</div><div class="value num" id="workDur">00:00:00</div></div>
-            <div class="stat"><div class="label">Total Break Time</div><div class="value num" id="breakDur">00:00:00</div></div>
-          </section>
-
-          <section class="panel">
-            <h3>Quick Actions</h3>
-            <p class="sub" id="actionsSub">Manage your daily attendance here.</p>
-            <div class="actions">
-              <button class="btn green" type="button" data-event="time_in" disabled>Time-In</button>
-              <button class="btn amber" type="button" data-event="break_start" disabled>Take Break</button>
-              <button class="btn" type="button" data-event="break_end" disabled>End Break</button>
-              <button class="btn red" type="button" data-event="time_out" disabled>Time-Out</button>
+        <main class="content dashboard">
+          <section class="stats" aria-label="Today's attendance summary">
+            <div class="stat stat-status" id="statusCard" data-state="out">
+              <div class="label">Current Status</div>
+              <div class="value s-out" id="status">Checked Out</div>
+              <span class="stat-icon" data-icon="user-clock" aria-hidden="true"></span>
+            </div>
+            <div class="stat stat-checkin">
+              <div class="label">Check-In Time</div>
+              <div class="value num" id="checkIn">--:--</div>
+              <span class="stat-icon" data-icon="clock" aria-hidden="true"></span>
+            </div>
+            <div class="stat stat-work">
+              <div class="label">Work Duration</div>
+              <div class="value num" id="workDur">00:00:00</div>
+              <span class="stat-icon" data-icon="stopwatch" aria-hidden="true"></span>
+            </div>
+            <div class="stat stat-break">
+              <div class="label">Total Break Time</div>
+              <div class="value num" id="breakDur">00:00:00</div>
+              <span class="stat-icon" data-icon="coffee" aria-hidden="true"></span>
             </div>
           </section>
 
-          <section class="panel">
+          <section class="panel action-panel">
+            <h3>Quick Actions</h3>
+            <p class="sub" id="actionsSub">Manage your daily attendance here.</p>
+            <div class="actions">
+              <button class="btn action-btn" type="button" data-event="time_in" disabled>
+                <span data-icon="login" aria-hidden="true"></span>Time-In
+              </button>
+              <button class="btn action-btn amber" type="button" data-event="break_start" disabled>
+                <span data-icon="pause" aria-hidden="true"></span>Take Break
+              </button>
+              <button class="btn action-btn green" type="button" data-event="break_end" disabled hidden>
+                <span data-icon="play" aria-hidden="true"></span>End Break
+              </button>
+              <button class="btn action-btn red" type="button" data-event="time_out" disabled>
+                <span data-icon="logout" aria-hidden="true"></span>Time-Out
+              </button>
+            </div>
+          </section>
+
+          <section class="panel activity-panel">
             <h3>Today's Activity Log</h3>
             <div class="table-wrap spaced">
               <table>
-                <thead><tr><th>Type</th><th>Time</th><th>Status</th></tr></thead>
-                <tbody id="log"><tr><td colspan="3" class="empty">No activity recorded today.</td></tr></tbody>
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Time</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="log">
+                  <tr>
+                    <td colspan="3" class="empty">No activity recorded today.</td>
+                  </tr>
+                </tbody>
               </table>
             </div>
           </section>

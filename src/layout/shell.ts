@@ -3,6 +3,7 @@ import * as officeApi from '../api/office';
 import * as profilesApi from '../api/profiles';
 import { app } from '../config/app';
 import { byId, escapeHtml, safely } from '../lib/dom';
+import { icon, renderIcons, type IconName } from '../lib/icons';
 import type { OfficeDetails, Profile } from '../types/models';
 
 export type PageId = 'dashboard' | 'attendance' | 'leave' | 'office' | 'admin';
@@ -16,15 +17,16 @@ interface NavItem {
   id: PageId;
   label: string;
   href: string;
+  icon: IconName;
   adminOnly?: boolean;
 }
 
 const NAV: readonly NavItem[] = [
-  { id: 'dashboard', label: 'Dashboard', href: '/employee' },
-  { id: 'attendance', label: 'My Attendance', href: '/attendance' },
-  { id: 'leave', label: 'Apply Leave', href: '/leave-request' },
-  { id: 'office', label: 'Office Details', href: '/office-details' },
-  { id: 'admin', label: 'Admin Panel', href: '/admin', adminOnly: true },
+  { id: 'dashboard', label: 'Dashboard', href: '/employee', icon: 'home' },
+  { id: 'attendance', label: 'My Attendance', href: '/attendance', icon: 'calendar' },
+  { id: 'leave', label: 'Apply Leave', href: '/leave-request', icon: 'send' },
+  { id: 'office', label: 'Office Details', href: '/office-details', icon: 'building' },
+  { id: 'admin', label: 'Admin Panel', href: '/admin', icon: 'shield', adminOnly: true },
 ];
 
 /** Navigates away and never resolves, so the calling page stops running. */
@@ -57,14 +59,16 @@ function renderShell(page: PageId, profile: Profile): void {
     .map((item) => {
       const current = item.id === page ? ' class="active" aria-current="page"' : '';
       const separator = item.adminOnly ? '<div class="sep"></div>' : '';
-      return `${separator}<a href="${item.href}"${current}>${item.label}</a>`;
+      return `${separator}<a href="${item.href}"${current}>${icon(item.icon)}<span>${item.label}</span></a>`;
     })
     .join('');
 
   byId('sidebar').innerHTML = `
     <div class="brand"><img id="brandLogo" src="${escapeHtml(app.logoUrl)}" alt=""><span>${escapeHtml(app.portalName)}</span></div>
     <nav class="nav" aria-label="Main">${links}</nav>
-    <button class="logout" id="logoutBtn" type="button">Logout</button>`;
+    <button class="logout" id="logoutBtn" type="button">${icon('logout')}<span>Logout</span></button>`;
+
+  renderIcons();
 
   const logo = byId<HTMLImageElement>('brandLogo');
   logo.addEventListener('error', () => logo.remove());
