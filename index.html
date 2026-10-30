@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - Employee Portal</title>
+    <link rel="stylesheet" href="/src/styles/main.css" />
+  </head>
+  <body>
+    <div class="auth">
+      <div class="auth-card">
+        <div class="brand"><img id="logo" alt="" /><span id="portalName"></span></div>
+        <h2 id="formTitle">Sign in</h2>
+        <p class="hint">Use your work email and password.</p>
+        <form id="authForm">
+          <div class="field signup-only" hidden>
+            <label for="fullName">Full name</label><input id="fullName" autocomplete="name" />
+          </div>
+          <div class="field signup-only" hidden>
+            <label for="department">Department</label><input id="department" />
+          </div>
+          <div class="field">
+            <label for="email">Email</label><input id="email" type="email" required autocomplete="email" />
+          </div>
+          <div class="field">
+            <label for="password">Password</label>
+            <input id="password" type="password" required minlength="6" autocomplete="current-password" />
+          </div>
+          <div class="msg" id="msg" role="alert"></div>
+          <button class="btn" id="submitBtn" type="submit">Sign in</button>
+        </form>
+        <p class="hint switch-row" id="switchRow">
+          <span id="switchText">New employee?</span>
+          <button class="link" id="switchBtn" type="button">Create an account</button>
+        </p>
+      </div>
+    </div>
+    <script type="module" src="/src/pages/login.ts"></script>
+  </body>
+</html>

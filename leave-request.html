@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Apply Leave - Employee Portal</title>
+    <link rel="stylesheet" href="/src/styles/main.css" />
+  </head>
+  <body>
+    <div class="layout">
+      <aside class="sidebar" id="sidebar"></aside>
+      <div class="main">
+        <header class="topbar">
+          <h1>Apply Leave</h1>
+          <div class="user"><span class="avatar" id="avatar">U</span><span id="userName">Loading...</span></div>
+        </header>
+        <main class="content">
+          <section class="stats" id="balances"></section>
+
+          <section class="panel">
+            <h3>New Leave Request</h3>
+            <p class="sub">Weekends aren't counted. Your manager reviews every request.</p>
+            <form class="form" id="leaveForm">
+              <div class="field"><label for="type">Leave type</label><select id="type" required></select></div>
+              <div class="field">
+                <label for="duration">Duration</label>
+                <select id="duration">
+                  <option value="full">Full day(s)</option>
+                  <option value="half">Half day</option>
+                </select>
+              </div>
+              <div class="field"><label for="from">From</label><input type="date" id="from" required /></div>
+              <div class="field"><label for="to">To</label><input type="date" id="to" required /></div>
+              <div class="field full">
+                <label for="reason">Reason</label><textarea id="reason" required maxlength="500"></textarea>
+              </div>
+              <div class="full actions">
+                <button class="btn" type="submit" id="submitBtn">Submit request</button>
+                <span class="hint" id="daysHint"></span>
+              </div>
+            </form>
+          </section>
+
+          <section class="panel">
+            <h3>My Leave Requests</h3>
+            <div class="table-wrap spaced">
+              <table>
+                <thead>
+                  <tr><th>Type</th><th>From</th><th>To</th><th>Days</th><th>Reason</th><th>Status</th><th></th></tr>
+                </thead>
+                <tbody id="rows"></tbody>
+              </table>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+    <script type="module" src="/src/pages/leave.ts"></script>
+  </body>
+</html>

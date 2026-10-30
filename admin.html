@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Panel - Employee Portal</title>
+    <link rel="stylesheet" href="/src/styles/main.css" />
+  </head>
+  <body>
+    <div class="layout">
+      <aside class="sidebar" id="sidebar"></aside>
+      <div class="main">
+        <header class="topbar">
+          <h1>Admin Panel</h1>
+          <div class="user"><span class="avatar" id="avatar">U</span><span id="userName">Loading...</span></div>
+        </header>
+        <main class="content">
+          <div class="tabs" role="tablist">
+            <button type="button" role="tab" class="active" aria-selected="true" aria-controls="tab-today">Today</button>
+            <button type="button" role="tab" aria-selected="false" aria-controls="tab-leaves">
+              Leave Requests <span class="badge amber" id="pendingCount" hidden></span>
+            </button>
+            <button type="button" role="tab" aria-selected="false" aria-controls="tab-people">Employees</button>
+            <button type="button" role="tab" aria-selected="false" aria-controls="tab-office">Office Settings</button>
+          </div>
+
+          <section class="tab active" id="tab-today" role="tabpanel">
+            <div class="stats">
+              <div class="stat"><div class="label">Employees</div><div class="value num" id="aTotal">0</div></div>
+              <div class="stat"><div class="label">Checked In</div><div class="value num s-working" id="aIn">0</div></div>
+              <div class="stat"><div class="label">On Break</div><div class="value num s-break" id="aBreak">0</div></div>
+              <div class="stat"><div class="label">Not Checked In</div><div class="value num" id="aNone">0</div></div>
+            </div>
+            <div class="panel">
+              <div class="panel-head">
+                <h3>Today's Attendance</h3>
+                <button class="btn ghost sm" id="refreshBtn" type="button">Refresh</button>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr><th>Employee</th><th>Department</th><th>Status</th><th>Time-In</th><th>Time-Out</th><th>Worked</th></tr>
+                  </thead>
+                  <tbody id="todayRows"></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <section class="tab" id="tab-leaves" role="tabpanel">
+            <div class="panel">
+              <div class="panel-head">
+                <h3>Leave Requests</h3>
+                <select id="leaveFilter" class="input" aria-label="Filter">
+                  <option value="pending">Pending</option>
+                  <option value="all">All</option>
+                </select>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr><th>Employee</th><th>Type</th><th>From</th><th>To</th><th>Days</th><th>Reason</th><th>Status</th><th></th></tr>
+                  </thead>
+                  <tbody id="leaveRows"></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <section class="tab" id="tab-people" role="tabpanel">
+            <div class="panel">
+              <div class="panel-head">
+                <h3>Employees</h3>
+                <span class="hint">New accounts appear here after they sign up.</span>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Name</th><th>Email</th><th>Department</th><th>Role</th><th></th></tr></thead>
+                  <tbody id="peopleRows"></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <section class="tab" id="tab-office" role="tabpanel">
+            <div class="panel">
+              <h3>Office Settings</h3>
+              <p class="sub">Shown on the Office Details page and used to mark late arrivals.</p>
+              <form class="form" id="officeForm">
+                <div class="field"><label for="o_company_name">Company name</label><input id="o_company_name" required /></div>
+                <div class="field">
+                  <label for="o_timezone">Time zone</label><input id="o_timezone" required placeholder="America/New_York" />
+                </div>
+                <div class="field full"><label for="o_address">Address</label><textarea id="o_address"></textarea></div>
+                <div class="field"><label for="o_work_start">Work starts</label><input type="time" id="o_work_start" required /></div>
+                <div class="field"><label for="o_work_end">Work ends</label><input type="time" id="o_work_end" required /></div>
+                <div class="field">
+                  <label for="o_grace_minutes">Grace period (minutes)</label>
+                  <input type="number" min="0" max="240" id="o_grace_minutes" />
+                </div>
+                <div class="field">
+                  <label for="o_map_url">Google Maps link</label><input type="url" id="o_map_url" placeholder="https://" />
+                </div>
+                <div class="field"><label for="o_phone">Phone</label><input id="o_phone" /></div>
+                <div class="field"><label for="o_email">Email</label><input type="email" id="o_email" /></div>
+                <div class="field full"><label for="o_break_policy">Break policy</label><input id="o_break_policy" /></div>
+                <div class="field full"><label for="o_notes">Policies and notes</label><textarea id="o_notes"></textarea></div>
+                <div class="full"><button class="btn" type="submit">Save changes</button></div>
+              </form>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+    <script type="module" src="/src/pages/admin/index.ts"></script>
+  </body>
+</html>

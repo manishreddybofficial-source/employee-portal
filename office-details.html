@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Office Details - Employee Portal</title>
+    <link rel="stylesheet" href="/src/styles/main.css" />
+  </head>
+  <body>
+    <div class="layout">
+      <aside class="sidebar" id="sidebar"></aside>
+      <div class="main">
+        <header class="topbar">
+          <h1>Office Details</h1>
+          <div class="user"><span class="avatar" id="avatar">U</span><span id="userName">Loading...</span></div>
+        </header>
+        <main class="content">
+          <section class="panel">
+            <h3 id="company">Office</h3>
+            <p class="sub" id="address"></p>
+            <div class="info" id="info"></div>
+          </section>
+          <section class="panel" id="notesPanel" hidden>
+            <h3>Policies and notes</h3>
+            <p class="notes" id="notes"></p>
+          </section>
+        </main>
+      </div>
+    </div>
+    <script type="module" src="/src/pages/office.ts"></script>
+  </body>
+</html>

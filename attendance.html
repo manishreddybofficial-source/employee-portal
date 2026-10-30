@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Attendance - Employee Portal</title>
+    <link rel="stylesheet" href="/src/styles/main.css" />
+  </head>
+  <body>
+    <div class="layout">
+      <aside class="sidebar" id="sidebar"></aside>
+      <div class="main">
+        <header class="topbar">
+          <h1>My Attendance</h1>
+          <div class="user"><span class="avatar" id="avatar">U</span><span id="userName">Loading...</span></div>
+        </header>
+        <main class="content">
+          <section class="stats">
+            <div class="stat"><div class="label">Days Present</div><div class="value num" id="sDays">0</div></div>
+            <div class="stat"><div class="label">Total Hours</div><div class="value num" id="sHours">0h 00m</div></div>
+            <div class="stat"><div class="label">Average per Day</div><div class="value num" id="sAvg">0h 00m</div></div>
+            <div class="stat"><div class="label">Late Arrivals</div><div class="value num" id="sLate">0</div></div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head">
+              <h3 id="tableTitle">Attendance History</h3>
+              <div class="actions">
+                <input type="month" id="month" class="input" aria-label="Month" />
+                <button class="btn ghost sm" id="exportBtn" type="button">Export CSV</button>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>Date</th><th>Time-In</th><th>Time-Out</th><th>Break</th><th>Worked</th><th>Status</th></tr>
+                </thead>
+                <tbody id="rows"></tbody>
+              </table>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+    <script type="module" src="/src/pages/attendance.ts"></script>
+  </body>
+</html>
