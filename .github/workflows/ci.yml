@@ -18,6 +18,8 @@ jobs:
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test
+      - run: npm run test:seed
+      - run: npm run db:test:local
       - run: npm run build
         env:
           # Public test configuration only; production uses the hosting environment.

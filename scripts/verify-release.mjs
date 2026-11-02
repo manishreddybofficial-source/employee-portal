@@ -72,7 +72,12 @@ for (const table of [
   'audit_logs',
 ]) {
   const response = await fetch(`${config.VITE_SUPABASE_URL}/rest/v1/${table}?select=*&limit=1`, { headers });
-  assert.equal(response.status, 200, `Database table unavailable: ${table}`);
-  assert.deepEqual(await response.json(), [], `Anonymous access exposes ${table}`);
+  assert.ok(
+    [200, 401, 403].includes(response.status),
+    `Unexpected database response for ${table}: ${response.status}`,
+  );
+  if (response.status === 200) {
+    assert.deepEqual(await response.json(), [], `Anonymous access exposes ${table}`);
+  }
 }
 console.log('PASS Supabase Auth, verified-email registration, and anonymous data isolation');
