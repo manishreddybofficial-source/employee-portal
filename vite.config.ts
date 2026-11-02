@@ -7,7 +7,7 @@ import { validateEnv } from './src/config/validate-env';
 const rootDir = dirname(fileURLToPath(import.meta.url));
 
 /** HTML entry points. Each name is also its public URL (/employee -> employee.html). */
-const pages = ['index', 'employee', 'attendance', 'leave-request', 'office-details', 'admin'];
+const pages = ['index', 'employee', 'attendance', 'leave-request', 'office-details', 'admin', 'operations'];
 
 /** Serves clean URLs in dev and preview, matching "cleanUrls" in vercel.json. */
 function cleanUrls(): Plugin {

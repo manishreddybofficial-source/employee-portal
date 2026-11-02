@@ -1,4 +1,5 @@
-export type Role = 'employee' | 'admin';
+export type Role =
+  'employee' | 'admin' | 'director' | 'asm' | 'supervisor' | 'gsoc' | 'controller' | 'security' | 'patrol';
 export type EventType = 'time_in' | 'break_start' | 'break_end' | 'time_out';
 export type WorkState = 'working' | 'break' | 'out';
 export type LeaveStatus = 'pending' | 'approved' | 'rejected';
@@ -10,6 +11,7 @@ export interface Profile {
   email: string | null;
   department: string;
   role: Role;
+  secondary_duty?: string | null;
   created_at: string;
 }
 

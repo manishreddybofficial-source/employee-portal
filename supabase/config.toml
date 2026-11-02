@@ -4,6 +4,11 @@
 # working directory name when running `supabase init`.
 project_id = "employee-portal"
 
+[functions.manage-employee]
+# The function verifies the bearer token using Auth getUser, then checks its
+# current database role. This supports projects using asymmetric signing keys.
+verify_jwt = false
+
 [api]
 enabled = true
 # Port to use for the API URL.

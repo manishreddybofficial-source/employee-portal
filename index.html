@@ -3,38 +3,147 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login - Employee Portal</title>
+    <meta name="theme-color" content="#10243b" />
+    <meta
+      name="description"
+      content="Employee Portal for building security, workforce, attendance, and shift operations."
+    />
+    <title>Sign in · Employee Portal</title>
     <link rel="stylesheet" href="/src/styles/main.css" />
+    <link rel="stylesheet" href="/src/styles/login.css" />
   </head>
-  <body>
-    <div class="auth">
-      <div class="auth-card">
-        <div class="brand"><img id="logo" alt="" /><span id="portalName"></span></div>
-        <h2 id="formTitle">Sign in</h2>
-        <p class="hint">Use your work email and password.</p>
-        <form id="authForm">
-          <div class="field signup-only" hidden>
-            <label for="fullName">Full name</label><input id="fullName" autocomplete="name" />
+  <body class="login-page">
+    <main class="login-layout">
+      <section class="mission-panel" aria-label="Employee Portal introduction">
+        <a class="login-brand" href="/" aria-label="Employee Portal home"
+          ><span class="brand-symbol" aria-hidden="true">M</span
+          ><span><strong id="portalName">MY PORTAL</strong><small>SECURITY OPERATIONS</small></span></a
+        >
+        <div class="mission-content">
+          <span class="mission-eyebrow"><i></i> BUILT FOR EVERY SHIFT</span>
+          <h1>Every floor.<br />Every shift.<br /><span>One clear view.</span></h1>
+          <p>
+            A connected workspace for your people,<br class="desktop-break" />
+            building security, and daily operations.
+          </p>
+          <div class="building-graphic" aria-label="Eight floors connected through one operations portal">
+            <div class="building-roof"><span>BUILDING 01</span><span>8 FLOORS</span></div>
+            <div class="building-floor"><b>08</b><span></span><span></span><span></span><i></i></div>
+            <div class="building-floor"><b>07</b><span></span><span></span><span></span><i></i></div>
+            <div class="building-floor"><b>06</b><span></span><span></span><span></span><i></i></div>
+            <div class="building-floor"><b>05</b><span></span><span></span><span></span><i></i></div>
+            <div class="building-floor"><b>04</b><span></span><span></span><span></span><i></i></div>
+            <div class="building-floor"><b>03</b><span></span><span></span><span></span><i></i></div>
+            <div class="building-floor"><b>02</b><span></span><span></span><span></span><i></i></div>
+            <div class="building-floor entrance"><b>01</b><span>MAIN ENTRANCE</span><i></i></div>
+            <div class="building-caption">
+              <span class="caption-line"></span> CONNECTED OPERATIONS <span class="caption-line"></span>
+            </div>
           </div>
-          <div class="field signup-only" hidden>
-            <label for="department">Department</label><input id="department" />
+        </div>
+        <div class="mission-footer">
+          <span>01 <b>People</b></span
+          ><span>02 <b>Deployment</b></span
+          ><span>03 <b>Response</b></span>
+        </div>
+      </section>
+      <section class="signin-panel" aria-label="Sign in">
+        <div class="signin-top">
+          <span>EMPLOYEE &amp; SECURITY PORTAL</span
+          ><span class="secure-label"
+            ><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+              <path d="m12 3 8 3v6c0 5-8 9-8 9s-8-4-8-9V6Z" />
+              <path d="m8 12 3 3 5-6" /></svg
+            >Secure access</span
+          >
+        </div>
+        <div class="signin-content">
+          <div class="signin-kicker">WELCOME TO YOUR WORKSPACE</div>
+          <h2 id="formTitle">Good to see you.</h2>
+          <p class="signin-description" id="formDescription">Sign in to access your people and operations.</p>
+          <form id="authForm">
+            <div class="field signup-only" hidden>
+              <label for="fullName">Full name</label
+              ><input id="fullName" autocomplete="name" placeholder="Your full name" />
+            </div>
+            <div class="field signup-only" hidden>
+              <label for="department">Department</label
+              ><input id="department" placeholder="Your department" />
+            </div>
+            <div class="field">
+              <label for="email">Email address</label
+              ><input
+                id="email"
+                type="email"
+                required
+                autocomplete="username"
+                placeholder="you@company.com"
+              />
+            </div>
+            <div class="field">
+              <label for="password">Password</label>
+              <div class="password-field">
+                <input
+                  id="password"
+                  type="password"
+                  required
+                  minlength="6"
+                  autocomplete="current-password"
+                  placeholder="Enter your password"
+                /><button type="button" id="togglePassword" aria-label="Show password" aria-pressed="false">
+                  Show
+                </button>
+              </div>
+            </div>
+            <div class="msg" id="msg" role="alert" aria-live="polite"></div>
+            <button class="btn signin-submit" id="submitBtn" type="submit">
+              Sign in <span aria-hidden="true">→</span>
+            </button>
+          </form>
+          <p class="signup-switch" id="switchRow">
+            <span id="switchText">New to the portal?</span>
+            <button class="link" id="switchBtn" type="button">Create an account</button>
+          </p>
+          <div class="demo-access">
+            <div class="demo-header"><span>EXPLORE THE DEMO</span><b>DEMO DATA</b></div>
+            <p>100 fictional employees. One connected building.</p>
+            <label class="sr-only" for="demoRole">Choose a demo role to fill sign-in details</label>
+            <select id="demoRole">
+              <option value="">Choose a demo role to fill credentials</option>
+              <option value="admin">Administrator</option>
+              <option value="001">Director</option>
+              <option value="002">Assistant Security Manager</option>
+              <option value="004">Shift Supervisor</option>
+              <option value="007">GSOC Analyst</option>
+              <option value="013">Controller</option>
+              <option value="019">Patrolling Officer</option>
+              <option value="031">Security Officer</option>
+            </select>
+            <dl>
+              <div>
+                <dt>Employees</dt>
+                <dd>
+                  <code>emp001@example.test</code> – <code>emp100@example.test</code><br /><code
+                    >SecurityDemo!2026</code
+                  >
+                </dd>
+              </div>
+              <div>
+                <dt>Administrator</dt>
+                <dd><code>admin@example.test</code><br /><code>AdminSecure!2026</code></dd>
+              </div>
+            </dl>
+            <small
+              >Demo access requires the database migration and demo seed. Credentials shown are the seed
+              defaults.</small
+            >
           </div>
-          <div class="field">
-            <label for="email">Email</label><input id="email" type="email" required autocomplete="email" />
-          </div>
-          <div class="field">
-            <label for="password">Password</label>
-            <input id="password" type="password" required minlength="6" autocomplete="current-password" />
-          </div>
-          <div class="msg" id="msg" role="alert"></div>
-          <button class="btn" id="submitBtn" type="submit">Sign in</button>
-        </form>
-        <p class="hint switch-row" id="switchRow">
-          <span id="switchText">New employee?</span>
-          <button class="link" id="switchBtn" type="button">Create an account</button>
-        </p>
-      </div>
-    </div>
+        </div>
+        <footer class="signin-footer">
+          <span>MY PORTAL</span><span>Your workspace. Under control.</span>
+        </footer>
+      </section>
+    </main>
     <script type="module" src="/src/pages/login.ts"></script>
   </body>
 </html>

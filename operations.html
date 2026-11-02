@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#101d35" />
+    <meta
+      name="description"
+      content="Employee Portal security operations, workforce, attendance, building deployment and incident management."
+    />
+    <title>Security Operations · Employee Portal</title>
+    <link rel="stylesheet" href="/src/styles/main.css" />
+    <link rel="stylesheet" href="/src/styles/operations.css" />
+  </head>
+  <body class="operations-app">
+    <div class="layout">
+      <aside class="sidebar" id="sidebar"></aside>
+      <div class="main">
+        <header class="topbar">
+          <div class="topbar-title">
+            <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">☰</button
+            ><span
+              >Workspace <span class="breadcrumb">/</span>
+              <strong id="pageLabel">Operations overview</strong></span
+            >
+          </div>
+          <div class="topbar-right">
+            <span class="connected" id="connectionState">Connecting</span>
+            <div class="user">
+              <span class="avatar" id="avatar">U</span><span id="userName">Loading…</span>
+            </div>
+          </div>
+        </header>
+        <main class="ops-content" id="operationsContent" aria-live="polite">
+          <div class="loading-state">
+            <span class="spinner"></span>
+            <h2>Opening your workspace</h2>
+            <p>Loading authorized security operations data.</p>
+          </div>
+        </main>
+        <footer class="ops-footer">
+          <span>MY PORTAL <span>Security Operations Management</span></span
+          ><span id="footerZone">All activity is recorded securely</span>
+        </footer>
+      </div>
+    </div>
+    <dialog id="opsDialog" aria-labelledby="dialogTitle"></dialog>
+    <script type="module" src="/src/pages/operations.ts"></script>
+  </body>
+</html>

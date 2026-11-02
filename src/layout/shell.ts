@@ -5,8 +5,9 @@ import { app } from '../config/app';
 import { byId, escapeHtml, safely } from '../lib/dom';
 import { icon, renderIcons, type IconName } from '../lib/icons';
 import type { OfficeDetails, Profile } from '../types/models';
+import { allowedPages, ROLE_LABELS, type OperationsPage } from '../lib/operations';
 
-export type PageId = 'dashboard' | 'attendance' | 'leave' | 'office' | 'admin';
+export type PageId = 'dashboard' | 'attendance' | 'leave' | 'office' | 'admin' | 'operations';
 
 export interface PageContext {
   profile: Profile;
@@ -63,15 +64,40 @@ function renderShell(page: PageId, profile: Profile): void {
     })
     .join('');
 
+  const operations: Record<OperationsPage, [string, IconName]> = {
+    overview: ['Operations overview', 'home'],
+    employees: ['Workforce directory', 'user-clock'],
+    attendance: ['Attendance', 'calendar'],
+    floors: ['Building deployment', 'building'],
+    shifts: ['Shift deployment', 'clock'],
+    patrols: ['Patrolling operations', 'shield'],
+    gsoc: ['GSOC & incidents', 'stopwatch'],
+    supervisor: ['Shift handovers', 'send'],
+    management: ['Management insights', 'home'],
+    reports: ['Reports & analytics', 'calendar'],
+    settings: ['Configuration', 'building'],
+    audit: ['Audit history', 'shield'],
+    profile: ['My profile', 'user-clock'],
+  };
+  const opLinks = allowedPages(profile.role, profile.secondary_duty)
+    .map(
+      (id) =>
+        `<a href="/operations#${id}" data-ops-nav="${id}">${icon(operations[id][1])}<span>${operations[id][0]}</span></a>`,
+    )
+    .join('');
   byId('sidebar').innerHTML = `
-    <div class="brand"><img id="brandLogo" src="${escapeHtml(app.logoUrl)}" alt=""><span>${escapeHtml(app.portalName)}</span></div>
-    <nav class="nav" aria-label="Main">${links}</nav>
-    <button class="logout" id="logoutBtn" type="button">${icon('logout')}<span>Logout</span></button>`;
+    <div class="brand"><span class="brand-mark">${icon('shield')}</span><span>${escapeHtml(app.portalName)}</span></div>
+    <div class="brand-sub">Security operations</div>
+    <nav class="nav" aria-label="Main"><div class="nav-label">Command center</div>${opLinks}<div class="nav-label">Employee services</div>${links}</nav>
+    <div class="sidebar-bottom"><span class="avatar">${escapeHtml(
+      profile.full_name
+        .split(' ')
+        .map((n) => n[0])
+        .slice(0, 2)
+        .join(''),
+    )}</span><div class="sidebar-person">${escapeHtml(profile.full_name)}<small>${escapeHtml(ROLE_LABELS[profile.role])}</small></div><button class="logout" id="logoutBtn" type="button" aria-label="Sign out">${icon('logout')}</button></div>`;
 
   renderIcons();
-
-  const logo = byId<HTMLImageElement>('brandLogo');
-  logo.addEventListener('error', () => logo.remove());
 
   byId('logoutBtn').addEventListener(
     'click',
@@ -91,4 +117,13 @@ function renderShell(page: PageId, profile: Profile): void {
       '<div class="desktop-only" role="alert"><div><h2>Desktop Only</h2><p>Open the portal on a desktop or laptop to continue.</p></div></div>',
     );
   }
+}
+
+export function highlightOperation(page: string): void {
+  document.querySelectorAll<HTMLAnchorElement>('[data-ops-nav]').forEach((link) => {
+    const active = link.dataset.opsNav === page;
+    link.classList.toggle('active', active);
+    if (active) link.setAttribute('aria-current', 'page');
+    else link.removeAttribute('aria-current');
+  });
 }

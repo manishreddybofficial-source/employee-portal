@@ -735,3 +735,61 @@ td a.btn {
     scroll-behavior: auto !important;
   }
 }
+
+.employee-profile-heading {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.employee-profile-heading h2 {
+  margin: 0 0 5px;
+  font-size: 23px;
+}
+.employee-profile-heading .sub {
+  margin: 0;
+}
+.employee-initials {
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  flex-shrink: 0;
+  border-radius: 14px;
+  color: #284c85;
+  background: #edf3fd;
+  font-size: 20px;
+  font-weight: 700;
+}
+.employee-assignment {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  margin: 24px 0 16px;
+  padding: 20px 0;
+  border-top: 1px solid #e8edf4;
+  border-bottom: 1px solid #e8edf4;
+}
+.employee-assignment span,
+.employee-assignment strong,
+.employee-assignment small {
+  display: block;
+}
+.employee-assignment span,
+.employee-assignment small {
+  color: #718096;
+  font-size: 12px;
+}
+.employee-assignment strong {
+  margin: 6px 0;
+  font-size: 16px;
+}
+@media (max-width: 650px) {
+  .employee-assignment {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .employee-profile-heading h2 {
+    font-size: 20px;
+  }
+}

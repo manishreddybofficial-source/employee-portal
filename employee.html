@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dashboard - Employee Portal</title>
     <link rel="stylesheet" href="/src/styles/main.css" />
+    <link rel="stylesheet" href="/src/styles/operations.css" />
   </head>
   <body>
     <div class="layout">
@@ -17,6 +18,22 @@
           </div>
         </header>
         <main class="content dashboard">
+          <section class="panel employee-profile" aria-label="My employee profile">
+            <div class="employee-profile-heading">
+              <span class="employee-initials" id="employeeInitials" aria-hidden="true"></span>
+              <div>
+                <h2 id="welcomeName">Welcome</h2>
+                <p class="sub" id="employeeIdentity">Loading your employee profile…</p>
+              </div>
+              <span class="badge blue" id="employeeDemo" hidden>DEMO DATA</span>
+            </div>
+            <div class="employee-assignment" id="employeeAssignment"></div>
+            <p class="sub" id="upcomingShift"></p>
+            <div class="actions">
+              <a class="btn ghost sm" href="/operations#profile">View profile &amp; assignment</a
+              ><a class="btn ghost sm" href="/attendance">Attendance history</a>
+            </div>
+          </section>
           <section class="stats" aria-label="Today's attendance summary">
             <div class="stat stat-status" id="statusCard" data-state="out">
               <div class="label">Current Status</div>
@@ -43,9 +60,10 @@
           <section class="panel action-panel">
             <h3>Quick Actions</h3>
             <p class="sub" id="actionsSub">Manage your daily attendance here.</p>
+            <p class="sub" id="lastCheckout"></p>
             <div class="actions">
               <button class="btn action-btn" type="button" data-event="time_in" disabled>
-                <span data-icon="login" aria-hidden="true"></span>Time-In
+                <span data-icon="login" aria-hidden="true"></span>Check In
               </button>
               <button class="btn action-btn amber" type="button" data-event="break_start" disabled>
                 <span data-icon="pause" aria-hidden="true"></span>Take Break
@@ -54,7 +72,7 @@
                 <span data-icon="play" aria-hidden="true"></span>End Break
               </button>
               <button class="btn action-btn red" type="button" data-event="time_out" disabled>
-                <span data-icon="logout" aria-hidden="true"></span>Time-Out
+                <span data-icon="logout" aria-hidden="true"></span>Check Out
               </button>
             </div>
           </section>

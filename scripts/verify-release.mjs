@@ -5,18 +5,20 @@ import { loadEnv } from 'vite';
 const origin = new URL(process.argv[2] || 'http://127.0.0.1:4173');
 const config = loadEnv('production', process.cwd(), 'VITE_');
 const routes = new Map([
-  ['/', 'Login'],
+  ['/', 'Sign in · Employee Portal'],
   ['/employee', 'Dashboard'],
   ['/attendance', 'My Attendance'],
   ['/leave-request', 'Apply Leave'],
   ['/office-details', 'Office Details'],
   ['/admin', 'Admin Panel'],
+  ['/operations', 'Security Operations · Employee Portal'],
 ]);
 for (const [route, title] of routes) {
   const response = await fetch(new URL(route, origin));
   assert.equal(response.status, 200, `Page failed: ${route}`);
   const html = await response.text();
-  assert.ok(html.includes(`<title>${title} - Employee Portal</title>`), `Wrong page: ${route}`);
+  const expectedTitle = title.includes('·') ? title : `${title} - Employee Portal`;
+  assert.ok(html.includes(`<title>${expectedTitle}</title>`), `Wrong page: ${route}`);
   assert.ok(/<script[^>]+type="module"/.test(html), `Missing application script: ${route}`);
   if (origin.protocol === 'https:') {
     assert.equal(
@@ -57,7 +59,18 @@ assert.equal(
   false,
   'Email verification must be enabled for invited administrators',
 );
-for (const table of ['profiles', 'office_details', 'attendance_events', 'leave_requests']) {
+for (const table of [
+  'profiles',
+  'office_details',
+  'attendance_events',
+  'leave_requests',
+  'floors',
+  'shifts',
+  'patrol_records',
+  'incidents',
+  'handovers',
+  'audit_logs',
+]) {
   const response = await fetch(`${config.VITE_SUPABASE_URL}/rest/v1/${table}?select=*&limit=1`, { headers });
   assert.equal(response.status, 200, `Database table unavailable: ${table}`);
   assert.deepEqual(await response.json(), [], `Anonymous access exposes ${table}`);

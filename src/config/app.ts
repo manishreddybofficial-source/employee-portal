@@ -4,7 +4,7 @@ export const app = {
   /** Put your logo at public/logo.png. It is hidden automatically if missing. */
   logoUrl: '/logo.png',
   /** Shows a "Desktop Only" screen below 900px, like the original portal. */
-  desktopOnly: true,
+  desktopOnly: false,
   /** Set to false once every employee has an account. */
   allowSignup: true,
   fullDayHours: 8,
