@@ -2,6 +2,7 @@ import * as profilesApi from '../../api/profiles';
 import type { PageContext } from '../../layout/shell';
 import { byId, emptyRow, escapeHtml, safely, toast } from '../../lib/dom';
 import type { Profile, Role } from '../../types/models';
+import { ROLE_LABELS } from '../../lib/operations';
 import type { AdminView } from './types';
 
 export function createEmployeesView(
@@ -19,7 +20,9 @@ export function createEmployeesView(
       <td>${escapeHtml(person.email)}</td>
       <td><input class="input" name="department" value="${escapeHtml(person.department)}" aria-label="Department"></td>
       <td><select class="input" name="role" aria-label="Role"${isSelf ? ' disabled' : ''}>
-        ${option('employee', 'Employee')}${option('admin', 'Admin')}
+        ${Object.entries(ROLE_LABELS)
+          .map(([role, label]) => option(role as Role, label))
+          .join('')}
       </select></td>
       <td><div class="actions">
         <button class="btn sm" type="button" data-save>Save</button>
@@ -40,7 +43,8 @@ export function createEmployeesView(
       const id = row?.dataset.id;
       if (!row || !id) return;
 
-      const field = (name: string) => row.querySelector<HTMLInputElement | HTMLSelectElement>(`[name="${name}"]`);
+      const field = (name: string) =>
+        row.querySelector<HTMLInputElement | HTMLSelectElement>(`[name="${name}"]`);
       const role = field('role');
 
       await profilesApi.update(id, {

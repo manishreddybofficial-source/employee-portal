@@ -1,5 +1,11 @@
 # Implementation and verification notes
 
+## Shared enterprise UI update
+
+The operations, management, GSOC, supervisor, patrol, deployment, reporting, employee, attendance, leave, office, and administration views now share a restrained navy/slate design system. The update standardizes typography, spacing, cards, tables, forms, status labels, action icons, headers, and footers. Navigation is grouped by purpose and filtered by the existing role permissions. The mobile drawer, Escape handling, skip link, and hidden-navigation focus behavior apply to the original employee pages as well as the operations workspace.
+
+UI validation: TypeScript, ESLint, production build, and all 38 existing tests passed. Final visual browser QA was limited because the Windows computer-use tool stopped when it could not confidently determine the active browser URL. No database migration or permission expansion was needed for this styling update.
+
 ## Repository audit
 
 The existing repository was Vite + strict TypeScript with multiple HTML entry points, no frontend framework, Supabase Auth/Postgres/RLS, Vitest, and static Vercel deployment. Its employee attendance/breaks, monthly attendance, leave applications/review, employee editing, and office settings remain canonical.

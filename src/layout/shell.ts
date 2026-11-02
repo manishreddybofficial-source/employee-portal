@@ -51,51 +51,117 @@ export async function bootstrapPage(
   }
   if (adminOnly && profile.role !== 'admin') return redirect('/employee');
 
-  renderShell(page, profile);
+  renderShell(page, profile, office);
   return { profile, office };
 }
 
-function renderShell(page: PageId, profile: Profile): void {
+function renderShell(page: PageId, profile: Profile, office: OfficeDetails): void {
   const links = NAV.filter((item) => !item.adminOnly || profile.role === 'admin')
     .map((item) => {
       const current = item.id === page ? ' class="active" aria-current="page"' : '';
-      const separator = item.adminOnly ? '<div class="sep"></div>' : '';
-      return `${separator}<a href="${item.href}"${current}>${icon(item.icon)}<span>${item.label}</span></a>`;
+      return `<a href="${item.href}"${current}>${icon(item.icon)}<span>${item.label}</span></a>`;
     })
     .join('');
 
   const operations: Record<OperationsPage, [string, IconName]> = {
-    overview: ['Operations overview', 'home'],
-    employees: ['Workforce directory', 'user-clock'],
+    overview: ['Overview', 'grid'],
+    employees: ['Workforce', 'users'],
     attendance: ['Attendance', 'calendar'],
     floors: ['Building deployment', 'building'],
     shifts: ['Shift deployment', 'clock'],
-    patrols: ['Patrolling operations', 'shield'],
-    gsoc: ['GSOC & incidents', 'stopwatch'],
+    patrols: ['Patrol operations', 'route'],
+    gsoc: ['GSOC & incidents', 'monitor'],
     supervisor: ['Shift handovers', 'send'],
-    management: ['Management insights', 'home'],
-    reports: ['Reports & analytics', 'calendar'],
-    settings: ['Configuration', 'building'],
+    management: ['Management insights', 'chart'],
+    reports: ['Reports & analytics', 'file'],
+    settings: ['Configuration', 'settings'],
     audit: ['Audit history', 'shield'],
     profile: ['My profile', 'user-clock'],
   };
-  const opLinks = allowedPages(profile.role, profile.secondary_duty)
-    .map(
-      (id) =>
-        `<a href="/operations#${id}" data-ops-nav="${id}">${icon(operations[id][1])}<span>${operations[id][0]}</span></a>`,
-    )
+  const permitted = allowedPages(profile.role, profile.secondary_duty);
+  const groups: [string, OperationsPage[]][] = [
+    ['Workspace', ['overview', 'management']],
+    ['Security operations', ['employees', 'attendance', 'floors', 'shifts', 'patrols', 'gsoc', 'supervisor']],
+    ['Governance', ['reports', 'audit', 'settings']],
+    ['My account', ['profile']],
+  ];
+  const opLinks = groups
+    .map(([label, items]) => {
+      const visible = items.filter((id) => permitted.includes(id));
+      return visible.length
+        ? `<div class="nav-group"><div class="nav-label">${label}</div>${visible.map((id) => `<a href="/operations#${id}" data-ops-nav="${id}">${icon(operations[id][1])}<span>${operations[id][0]}</span></a>`).join('')}</div>`
+        : '';
+    })
     .join('');
+  const initials =
+    profile.full_name
+      .trim()
+      .split(/\s+/)
+      .map((n) => n[0])
+      .slice(0, 2)
+      .join('') || 'U';
   byId('sidebar').innerHTML = `
-    <div class="brand"><span class="brand-mark">${icon('shield')}</span><span>${escapeHtml(app.portalName)}</span></div>
-    <div class="brand-sub">Security operations</div>
-    <nav class="nav" aria-label="Main"><div class="nav-label">Command center</div>${opLinks}<div class="nav-label">Employee services</div>${links}</nav>
-    <div class="sidebar-bottom"><span class="avatar">${escapeHtml(
-      profile.full_name
-        .split(' ')
-        .map((n) => n[0])
-        .slice(0, 2)
-        .join(''),
-    )}</span><div class="sidebar-person">${escapeHtml(profile.full_name)}<small>${escapeHtml(ROLE_LABELS[profile.role])}</small></div><button class="logout" id="logoutBtn" type="button" aria-label="Sign out">${icon('logout')}</button></div>`;
+    <a class="brand" href="/operations"><span class="brand-mark">${icon('shield')}</span><span>${escapeHtml(app.portalName)}<small>Security operations</small></span></a>
+    <button class="nav-close icon-button" type="button" aria-label="Close navigation">${icon('close')}</button>
+    <div class="workspace-label">${icon('building')}<span>Operations workspace<small>${escapeHtml(office.company_name || 'Employee Portal')}</small></span></div>
+    <nav class="nav" aria-label="Main">${opLinks}<div class="nav-group"><div class="nav-label">Employee services</div>${links}</div></nav>
+    <div class="sidebar-bottom"><span class="avatar">${escapeHtml(initials)}</span><div class="sidebar-person" title="${escapeHtml(profile.full_name)}">${escapeHtml(profile.full_name)}<small>${escapeHtml(ROLE_LABELS[profile.role])}</small></div><button class="logout icon-button" id="logoutBtn" type="button" aria-label="Sign out" title="Sign out">${icon('logout')}</button></div>`;
+
+  const legacy: Partial<Record<PageId, [string, string]>> = {
+    dashboard: ['My workspace', 'Your profile, attendance, and daily assignments.'],
+    attendance: ['My attendance', 'Review your working hours and attendance history.'],
+    leave: ['Leave requests', 'Manage time off, balances, and request status.'],
+    office: ['Office information', 'Workplace details, office policies, and contact information.'],
+    admin: ['Administration', 'Review attendance, employee access, leave requests, and office settings.'],
+  };
+  const pageTitle = legacy[page]?.[0] || 'Operations overview';
+  const topbar = document.querySelector<HTMLElement>('.topbar');
+  if (topbar)
+    topbar.innerHTML = `<div class="topbar-title"><button class="menu-toggle icon-button" id="menuToggle" type="button" aria-controls="sidebar" aria-expanded="false" aria-label="Open navigation">${icon('menu')}</button><span class="workspace-breadcrumb">Workspace</span><span class="breadcrumb">/</span><strong id="pageLabel">${pageTitle}</strong></div><div class="topbar-right">${page === 'operations' ? '<span class="connected" id="connectionState" role="status">Connecting</span>' : `<span class="workspace-timezone">${icon('clock')}${escapeHtml(office.timezone)}</span>`}<div class="user"><span class="avatar" id="avatar">${escapeHtml(initials)}</span><div class="user-identity"><span id="userName">${escapeHtml(profile.full_name)}</span><small>${escapeHtml(ROLE_LABELS[profile.role])}</small></div></div></div>`;
+
+  if (page !== 'operations') {
+    const content = document.querySelector<HTMLElement>('.content');
+    content?.classList.add('legacy-content');
+    content?.insertAdjacentHTML(
+      'afterbegin',
+      `<div class="page-heading"><div><div class="eyebrow">${page === 'admin' ? 'Administration' : 'Employee services'}</div><h1>${pageTitle}</h1><p>${legacy[page]?.[1] || ''}</p></div><a class="btn secondary" href="/operations">${icon('grid')}Operations workspace</a></div>`,
+    );
+    if (!document.querySelector('.ops-footer'))
+      document
+        .querySelector('.main')
+        ?.insertAdjacentHTML(
+          'beforeend',
+          `<footer class="ops-footer"><span>${escapeHtml(app.portalName)}<span>Employee & security operations</span></span><span>${escapeHtml(office.timezone)}</span></footer>`,
+        );
+  }
+
+  document.body.insertAdjacentHTML(
+    'beforeend',
+    '<button class="nav-backdrop" id="navBackdrop" aria-label="Close navigation" tabindex="-1" type="button"></button><a class="skip-link" href="#mainContent">Skip to main content</a>',
+  );
+  const main = document.querySelector<HTMLElement>('main');
+  if (main && !main.id) main.id = 'mainContent';
+  else
+    document
+      .querySelector<HTMLAnchorElement>('.skip-link')
+      ?.setAttribute('href', `#${main?.id || 'operationsContent'}`);
+  byId('menuToggle').addEventListener('click', () =>
+    setNavigation(!document.body.classList.contains('nav-open')),
+  );
+  byId('navBackdrop').addEventListener('click', closeNavigation);
+  document.querySelector('.nav-close')?.addEventListener('click', closeNavigation);
+  document.querySelector('.nav')?.addEventListener('click', (event) => {
+    if ((event.target as HTMLElement).closest('a')) closeNavigation();
+  });
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && document.body.classList.contains('nav-open')) {
+      closeNavigation();
+      byId('menuToggle').focus();
+    }
+  });
+  const mobileNavigation = window.matchMedia('(max-width: 850px)');
+  mobileNavigation.addEventListener('change', closeNavigation);
+  closeNavigation();
 
   renderIcons();
 
@@ -109,7 +175,7 @@ function renderShell(page: PageId, profile: Profile): void {
 
   const name = profile.full_name || profile.email || 'User';
   byId('userName').textContent = name;
-  byId('avatar').textContent = name.trim().charAt(0).toUpperCase();
+  byId('avatar').textContent = initials;
 
   if (app.desktopOnly) {
     document.body.insertAdjacentHTML(
@@ -117,6 +183,17 @@ function renderShell(page: PageId, profile: Profile): void {
       '<div class="desktop-only" role="alert"><div><h2>Desktop Only</h2><p>Open the portal on a desktop or laptop to continue.</p></div></div>',
     );
   }
+}
+
+function setNavigation(open: boolean): void {
+  document.body.classList.toggle('nav-open', open);
+  document.getElementById('menuToggle')?.setAttribute('aria-expanded', String(open));
+  const sidebar = document.getElementById('sidebar');
+  if (sidebar) sidebar.inert = window.matchMedia('(max-width: 850px)').matches && !open;
+}
+
+export function closeNavigation(): void {
+  setNavigation(false);
 }
 
 export function highlightOperation(page: string): void {

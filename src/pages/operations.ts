@@ -1,6 +1,6 @@
 import * as api from '../api/operations';
 import * as attendanceApi from '../api/attendance';
-import { bootstrapPage, highlightOperation, type PageContext } from '../layout/shell';
+import { bootstrapPage, closeNavigation, highlightOperation, type PageContext } from '../layout/shell';
 import { escapeHtml as esc, byId, errorMessage, toast } from '../lib/dom';
 import { icon, type IconName } from '../lib/icons';
 import { downloadCsv } from '../lib/csv';
@@ -72,18 +72,18 @@ const initials = (s: string) =>
     .slice(0, 2)
     .join('');
 const titles: Record<OperationsPage, string> = {
-  overview: 'Operations overview',
+  overview: 'Security operations',
   employees: 'Workforce directory',
   attendance: 'Attendance management',
   floors: 'Building deployment',
   shifts: 'Shift deployment',
   patrols: 'Patrolling operations',
-  gsoc: 'GSOC & incident management',
-  supervisor: 'Shift operations & handovers',
+  gsoc: 'GSOC & incidents',
+  supervisor: 'Shift operations',
   management: 'Management insights',
   reports: 'Reports & analytics',
-  settings: 'System configuration',
-  audit: 'Attendance & activity audit',
+  settings: 'Configuration',
+  audit: 'Audit history',
   profile: 'My profile & schedule',
 };
 function pill(value: string): string {
@@ -99,16 +99,34 @@ function pill(value: string): string {
   return `<span class="badge ${tone}"><i class="status-dot"></i>${esc(value)}</span>`;
 }
 function button(label: string, action: string, id?: string | number, extra = ''): string {
-  return `<button class="btn ${extra}" type="button" data-action="${action}"${id !== undefined ? ` data-id="${esc(id)}"` : ''}>${label}</button>`;
+  const actionIcons: Partial<Record<string, IconName>> = {
+    'employee-create': 'plus',
+    'employee-import': 'file',
+    'employee-export': 'download',
+    'incident-create': 'plus',
+    'patrol-create': 'plus',
+    'route-create': 'route',
+    'handover-create': 'plus',
+    'floor-create': 'plus',
+    'report-export': 'download',
+    'export-overview': 'download',
+    'attendance-export': 'download',
+    'audit-export': 'download',
+  };
+  const prefix = actionIcons[action];
+  const content = prefix
+    ? `${icon(prefix)}${label.replace(/^\+\s*/, '').replace(/<svg[\s\S]*?<\/svg>/, '')}`
+    : label;
+  return `<button class="btn ${extra}" type="button" data-action="${action}"${id !== undefined ? ` data-id="${esc(id)}"` : ''}>${content}</button>`;
 }
 function employeeCell(e: Employee): string {
   return `<div class="person"><span class="person-avatar">${esc(initials(e.full_name))}</span><div><div class="person-name">${esc(e.full_name)}</div><div class="person-id">${esc(e.employee_id ?? 'Employee')}${e.is_demo ? ' · DEMO' : ''}</div></div></div>`;
 }
 function table(headers: string[], rows: string[], empty = 'No records match your filters.'): string {
-  return `<div class="table-wrap"><table><thead><tr>${headers.map((h) => `<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${rows.length ? rows.join('') : `<tr><td class="empty" colspan="${headers.length}">${esc(empty)}</td></tr>`}</tbody></table></div>`;
+  return `<div class="table-wrap"><table><thead><tr>${headers.map((h) => `<th scope="col">${esc(h)}</th>`).join('')}</tr></thead><tbody>${rows.length ? rows.join('') : `<tr><td class="empty" colspan="${headers.length}"><div class="empty-state">${icon('file')}<span>${esc(empty)}</span></div></td></tr>`}</tbody></table></div>`;
 }
 function panel(title: string, subtitle: string, body: string, link?: [string, OperationsPage]): string {
-  return `<section class="panel"><div class="panel-head"><div><h3>${esc(title)}</h3>${subtitle ? `<p>${esc(subtitle)}</p>` : ''}</div>${link ? `<a class="panel-link" href="#${link[1]}">${esc(link[0])} ↗</a>` : ''}</div>${body}</section>`;
+  return `<section class="panel"><div class="panel-head"><div><h3>${esc(title)}</h3>${subtitle ? `<p>${esc(subtitle)}</p>` : ''}</div>${link ? `<a class="panel-link" href="#${link[1]}">${esc(link[0])}${icon('arrow-right')}</a>` : ''}</div>${body}</section>`;
 }
 function kpi(
   label: string,
@@ -172,7 +190,7 @@ function floorList(shiftId?: number): string {
 function shiftChart(): string {
   const shiftMetrics = data.shifts.map((s) => ({ shift: s, ...metrics(s.id) }));
   const max = Math.max(1, ...shiftMetrics.map((s) => s.total));
-  return `<div class="panel-body"><div class="legend"><span><i></i>Assigned</span><span><i style="background:#a1b5f1"></i>Present</span></div><div class="shift-chart" role="img" aria-label="Assigned and present employees by shift">${shiftMetrics.map((s) => `<div class="chart-col"><div class="chart-bar" title="${esc(s.shift.name)} assigned: ${s.total}" style="height:${(s.total / max) * 83}%"><span>${s.total}</span></div><div class="chart-bar present" title="${esc(s.shift.name)} present: ${s.present}" style="height:${(s.present / max) * 83}%"><span>${s.present}</span></div><label>${esc(s.shift.name)} shift</label></div>`).join('')}</div><div class="chart-bottom subtext">${esc(shiftAt(data.shifts, tz())?.name ?? 'No active shift')} shift currently in operation</div></div>`;
+  return `<div class="panel-body"><div class="legend"><span><i></i>Assigned</span><span><i class="present"></i>Present</span></div><div class="shift-chart" role="img" aria-label="Assigned and present employees by shift">${shiftMetrics.map((s) => `<div class="chart-col"><div class="chart-bar" title="${esc(s.shift.name)} assigned: ${s.total}" style="height:${(s.total / max) * 83}%"><span>${s.total}</span></div><div class="chart-bar present" title="${esc(s.shift.name)} present: ${s.present}" style="height:${(s.present / max) * 83}%"><span>${s.present}</span></div><label>${esc(s.shift.name)} shift</label></div>`).join('')}</div><div class="chart-bottom subtext">${esc(shiftAt(data.shifts, tz())?.name ?? 'No active shift')} shift currently in operation</div></div>`;
 }
 function genderChart(): string {
   const employees = data.employees.filter((e) => e.role !== 'admin' && e.employment_status === 'Active');
@@ -198,7 +216,7 @@ function renderOverview(): string {
       `${button(`${icon('calendar')}Export report`, 'export-overview', undefined, 'secondary')}${canManageIncidents(context.profile.role) ? button('+ Report incident', 'incident-create') : ''}`,
     ) +
     (demo
-      ? `<div class="notice"><span><strong><span class="status-dot"></span>Demo workspace</strong> &nbsp; ${demo} fictional employee records · All operations use shared application data.</span><span>${esc(tz())}</span></div>`
+      ? `<div class="notice"><span><strong><span class="status-dot"></span>Demo workspace</strong> &nbsp; ${demo} fictional employee records · Changes persist in this demo workspace.</span><span>${esc(tz())}</span></div>`
       : '') +
     `<div class="kpi-grid">${kpi('Total workforce', stats.total, 'Across all assigned security functions', 'user-clock')}${kpi('Personnel on duty', stats.onDuty, `${stats.onBreak} on break · ${stats.offDuty} off duty`, 'shield', 'green')}${kpi('Active incidents', activeIncidents, `${data.incidents.filter((i) => i.status === 'Escalated').length} require escalation review`, 'stopwatch', 'amber')}${kpi('Patrol completion', `${periodPatrols.length ? Math.round((completed / periodPatrols.length) * 100) : 0}%`, `${completed} of ${periodPatrols.length} rounds in selected period`, 'calendar')}</div>` +
     `<div class="dashboard-grid">${panel('Shift manpower distribution', 'Assigned personnel and recorded attendance', shiftChart(), ['View shifts', 'shifts'])}${panel('Workforce composition', 'Gender distribution across active personnel', genderChart(), ['View insights', 'management'])}</div>` +
@@ -266,14 +284,14 @@ function renderFloors(): string {
       'Eight floors. One clear view of your building’s security coverage.',
       isAdmin() ? button('+ Add floor', 'floor-create') : '',
     ) +
-    `<div class="toolbar panel" style="margin-bottom:20px"><div class="filters">${selects()}</div><div class="legend"><span><i class="green"></i>Adequate</span><span><i class="amber"></i>Shortage</span><span><i class="red"></i>Critical</span><span><i class="gray"></i>No deployment</span></div></div>` +
+    `<div class="toolbar panel"><div class="filters">${selects()}</div><div class="legend"><span><i class="green"></i>Adequate</span><span><i class="amber"></i>Shortage</span><span><i class="red"></i>Critical</span><span><i class="gray"></i>No deployment</span></div></div>` +
     `<div class="floor-grid">${floors
       .filter((f) => !selectedFloor || f.floor.id === Number(selectedFloor))
       .slice()
       .reverse()
       .map(
         (f) =>
-          `<article class="floor-card" data-action="floor-view" data-id="${f.floor.id}" tabindex="0" role="button" aria-label="View ${esc(f.floor.name)} personnel"><div style="display:flex;justify-content:space-between"><span class="floor-number">F${f.floor.id}</span>${pill(f.total === 0 ? 'No deployment' : f.coverage >= 100 ? 'Adequate' : f.coverage >= 50 ? 'Shortage' : 'Critical shortage')}</div><h3>${esc(f.floor.name)}</h3><span class="subtext">${esc(f.floor.location)}</span><div class="coverage-bar"><i class="${f.tone}" style="width:${Math.min(100, f.coverage)}%"></i></div><div class="subtext">${f.onDuty + f.onBreak} available now / ${f.required} required · ${f.vacant} vacant positions</div><div class="floor-card-stats"><div><b>${f.total}</b>Assigned</div><div><b>${f.patrolling}</b>Patrolling</div><div><b>${f.controllers}</b>Controllers</div></div><p class="subtext">${f.security} security staff · ${f.supervisors} supervisors</p></article>`,
+          `<article class="floor-card" data-action="floor-view" data-id="${f.floor.id}" tabindex="0" role="button" aria-label="View ${esc(f.floor.name)} personnel"><div class="floor-card-top"><span class="floor-number">F${f.floor.id}</span>${pill(f.total === 0 ? 'No deployment' : f.coverage >= 100 ? 'Adequate' : f.coverage >= 50 ? 'Shortage' : 'Critical shortage')}</div><h3>${esc(f.floor.name)}</h3><span class="subtext">${esc(f.floor.location)}</span><div class="coverage-bar"><i class="${f.tone}" style="width:${Math.min(100, f.coverage)}%"></i></div><div class="subtext">${f.onDuty + f.onBreak} available now / ${f.required} required · ${f.vacant} vacant positions</div><div class="floor-card-stats"><div><b>${f.total}</b>Assigned</div><div><b>${f.patrolling}</b>Patrolling</div><div><b>${f.controllers}</b>Controllers</div></div><p class="subtext">${f.security} security staff · ${f.supervisors} supervisors</p></article>`,
       )
       .join('')}</div>`
   );
@@ -281,14 +299,14 @@ function renderFloors(): string {
 function renderShifts(): string {
   return (
     heading('Monitor all three shifts and their floor coverage from the same roster.') +
-    `<div class="shift-grid" style="margin-bottom:22px">${data.shifts
+    `<div class="shift-grid">${data.shifts
       .map((s) => {
         const m = metrics(s.id);
         const staff = data.employees.filter((e) => e.shift_id === s.id && e.employment_status === 'Active');
         return panel(
           s.name + ' shift',
           `${formatClockTime(s.start_time)} – ${formatClockTime(s.end_time)} · ${s.start_time > s.end_time ? 'Overnight · ' : ''}8 hours`,
-          `<div class="panel-body"><div class="inline-metrics"><div><b>${m.total}</b>Assigned</div><div><b>${m.present}</b>Present</div><div><b>${m.absent}</b>Absent</div></div><div class="legend"><span>${m.onDuty} on duty</span><span>${m.onBreak} on break</span><span>${m.late} late</span></div><hr style="border:0;border-top:1px solid #edf0f7;margin:18px 0"><div class="detail-list">${[
+          `<div class="panel-body"><div class="inline-metrics"><div><b>${m.total}</b>Assigned</div><div><b>${m.present}</b>Present</div><div><b>${m.absent}</b>Absent</div></div><div class="legend"><span>${m.onDuty} on duty</span><span>${m.onBreak} on break</span><span>${m.late} late</span></div><hr class="section-divider"><div class="detail-list">${[
             ['Security staff', staff.filter((e) => e.role === 'security').length],
             [
               'Patrol officers',
@@ -423,12 +441,12 @@ function renderReports(): string {
       'Date-filtered reports generated from authorized shared records.',
       button('Export CSV', 'report-export'),
     ) +
-    `<div class="toolbar panel" style="margin-bottom:20px"><div class="filters"><label class="subtext">From <input class="input" type="date" data-filter="from" value="${esc(from)}" aria-label="Report start date"></label><label class="subtext">To <input class="input" type="date" data-filter="to" value="${esc(to)}" aria-label="Report end date"></label>${button('Apply range', 'range-apply', undefined, 'secondary')}</div><span class="subtext">CSV opens in Excel</span></div><div class="report-layout"><section class="panel report-menu">${Object.entries(
+    `<div class="toolbar panel"><div class="filters"><label class="subtext">From <input class="input" type="date" data-filter="from" value="${esc(from)}" aria-label="Report start date"></label><label class="subtext">To <input class="input" type="date" data-filter="to" value="${esc(to)}" aria-label="Report end date"></label>${button('Apply range', 'range-apply', undefined, 'secondary')}</div><span class="subtext">CSV opens in Excel</span></div><div class="report-layout"><section class="panel report-menu">${Object.entries(
       REPORT_LABELS,
     )
       .map(
         ([key, label]) =>
-          `<button type="button" data-report="${key}" class="${reportType === key ? 'active' : ''}">${esc(label)}</button>`,
+          `<button type="button" data-report="${key}" class="${reportType === key ? 'active' : ''}" aria-pressed="${reportType === key}">${icon('file')}${esc(label)}</button>`,
       )
       .join(
         '',
@@ -531,7 +549,7 @@ function renderProfile(compact = false): string {
       ]
         .map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v ?? '—')}</dd></div>`)
         .join('')}</dl></div>`,
-    )}${panel('Attendance actions', 'Punches use server time in ' + tz(), `<div class="panel-body"><p class="subtext">${esc(floorName(e.floor_id))} · ${esc(shiftName(e.shift_id))} shift</p><div class="actions" style="margin:22px 0;flex-wrap:wrap">${ALLOWED_ACTIONS[d.summary.state].map((action) => button(`${icon(action === 'time_in' ? 'login' : action === 'time_out' ? 'logout' : 'coffee')}${EVENT_LABELS[action]}`, 'punch', action, action === 'time_out' ? 'secondary' : '')).join('')}</div><a class="panel-link" href="/leave-request">Request leave ↗</a><hr style="border:0;border-top:1px solid #edf0f6;margin:24px 0"><h3 class="panel-title">Upcoming shift schedule</h3><div class="schedule-list" style="margin-top:16px">${[1, 2, 3].map((n) => `<div class="schedule-day">${esc(addDays(today(), n))}<strong>${esc(shift?.name ?? 'Unassigned')}</strong><span>${shift ? esc(shift.start_time.slice(0, 5) + ' – ' + shift.end_time.slice(0, 5)) : ''}</span><span style="display:block">${esc(floorName(e.floor_id))}</span></div>`).join('')}</div><p class="field-note">Recurring assignment; changes are managed by your supervisor.</p></div>`)}</div>` +
+    )}${panel('Attendance actions', 'Attendance recorded in ' + tz(), `<div class="panel-body"><p class="subtext">${esc(floorName(e.floor_id))} · ${esc(shiftName(e.shift_id))} shift</p><div class="actions profile-attendance-actions">${ALLOWED_ACTIONS[d.summary.state].map((action) => button(`${icon(action === 'time_in' ? 'login' : action === 'time_out' ? 'logout' : 'coffee')}${EVENT_LABELS[action]}`, 'punch', action, action === 'time_out' ? 'secondary' : '')).join('')}</div><a class="panel-link" href="/leave-request">Request leave ↗</a><hr class="section-divider"><h3 class="panel-title">Upcoming shift schedule</h3><div class="schedule-list">${[1, 2, 3].map((n) => `<div class="schedule-day">${esc(addDays(today(), n))}<strong>${esc(shift?.name ?? 'Unassigned')}</strong><span>${shift ? esc(shift.start_time.slice(0, 5) + ' – ' + shift.end_time.slice(0, 5)) : ''}</span><span style="display:block">${esc(floorName(e.floor_id))}</span></div>`).join('')}</div><p class="field-note">Recurring assignment; changes are managed by your supervisor.</p></div>`)}</div>` +
     panel(
       'My attendance history',
       'Overnight sessions remain on the shift start date',
@@ -572,6 +590,7 @@ async function reload(): Promise<void> {
   if (loading) return;
   loading = true;
   byId('connectionState').textContent = 'Syncing';
+  byId('connectionState').dataset.state = 'loading';
   try {
     const currentFrom = addDays(today(), -1);
     const [history, current] = await Promise.all([
@@ -580,9 +599,12 @@ async function reload(): Promise<void> {
     ]);
     data = current ? mergeSnapshots(history, current) : history;
     render();
-    byId('connectionState').textContent = 'Data synchronized';
+    byId('connectionState').textContent = 'Up to date';
+    byId('connectionState').dataset.state = 'ready';
+    byId('footerZone').textContent = `${tz()} · Updated ${formatTime(new Date().toISOString(), tz())}`;
   } catch (error) {
     byId('connectionState').textContent = 'Connection issue';
+    byId('connectionState').dataset.state = 'error';
     throw error;
   } finally {
     loading = false;
@@ -598,7 +620,7 @@ function navigate(): void {
   search = '';
   statusFilter = '';
   render();
-  document.body.classList.remove('nav-open');
+  closeNavigation();
 }
 function field(
   label: string,
@@ -1363,7 +1385,6 @@ async function start(): Promise<void> {
   from = addDays(day, -30);
   to = day;
   byId('footerZone').textContent = `${tz()} · Server-authorized operations`;
-  byId('menuToggle').addEventListener('click', () => document.body.classList.toggle('nav-open'));
   await reload();
   navigate();
   window.addEventListener('hashchange', navigate);
